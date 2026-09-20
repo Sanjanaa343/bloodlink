@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | BloodLink Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --sidebar-width: 250px; --bg-main: #f8fafc; --navy-dark: #0f172a; --navy-primary: #1e293b; --red-accent: #dc2626; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg-main); color: #334155; margin: 0; }
+        #wrapper { display: flex; width: 100%; min-height: 100vh; }
+        #sidebar { width: var(--sidebar-width); background-color: var(--navy-dark); color: #fff; flex-shrink: 0; display: flex; flex-direction: column; }
+        #sidebar .sidebar-brand { padding: 1.25rem 1.5rem; font-size: 1.25rem; font-weight: 700; border-bottom: 1px solid #334155; color: #fff; text-decoration: none; }
+        #sidebar .nav-link { color: #94a3b8; padding: 0.85rem 1.5rem; font-size: 0.95rem; border-left: 3px solid transparent; cursor: pointer; }
+        #sidebar .nav-link:hover, #sidebar .nav-link.active { color: #fff; background-color: var(--navy-primary); border-left-color: var(--red-accent); }
+        #content-wrapper { flex-grow: 1; display: flex; flex-direction: column; }
+        .top-navbar { background-color: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 0.75rem 1.5rem; }
+        .main-content { padding: 1.75rem; flex-grow: 1; }
+        .metric-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1.25rem; }
+        .metric-card .metric-value { font-size: 1.85rem; font-weight: 700; color: var(--navy-dark); }
+        .metric-card .metric-label { font-size: 0.85rem; color: #64748b; text-transform: uppercase; }
+        .table-custom th { background-color: #f1f5f9; color: #475569; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="sidebar">
+            <a href="index.html" class="sidebar-brand d-flex align-items-center">
+                <i class="fa-solid fa-droplet text-danger me-2"></i><span>BloodLink</span>
+            </a>
+            <div class="nav flex-column mt-3">
+                <a class="nav-link active" onclick="showAdminSection('overview', this)"><i class="fa-solid fa-chart-line me-2"></i> System Overview</a>
+                <a class="nav-link" onclick="showAdminSection('hospitals', this)"><i class="fa-solid fa-hospital me-2"></i> Hospitals</a>
+                <a class="nav-link" onclick="showAdminSection('bloodbanks', this)"><i class="fa-solid fa-building-columns me-2"></i> Blood Banks</a>
+                <a class="nav-link" onclick="showAdminSection('thresholds', this)"><i class="fa-solid fa-sliders me-2"></i> Stock Thresholds</a>
+            </div>
+            <div class="mt-auto p-3 border-top border-secondary text-muted small">
+                Connected: <span class="badge bg-success">Live Preview</span>
+            </div>
+        </div>
+
+        <div id="content-wrapper">
+            <nav class="top-navbar d-flex justify-content-between align-items-center">
+                <h5 class="m-0 text-secondary">Admin Dashboard</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="dropdown">
+                        <button class="btn btn-light position-relative border" type="button" id="notifDropdown" data-bs-toggle="dropdown" onclick="resetNotifBadge()">
+                            <i class="fa-regular fa-bell fs-5"></i>
+                            <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end p-2 shadow-lg" id="notif-list" style="width: 320px;">
+                            <li class="dropdown-header fw-bold d-flex justify-content-between align-items-center">
+                                <span>System Alerts</span>
+                                <span class="badge bg-secondary" style="cursor:pointer" onclick="clearNotifs()">Clear</span>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li class="text-center text-muted small py-3" id="no-notifs">No unread notifications</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-outline-warning btn-sm" onclick="triggerDemoNotif()"><i class="fa-solid fa-bolt me-1"></i> Test Alert</button>
+                    <span class="fw-semibold text-dark">System Admin</span>
+                    <a href="index.html" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                </div>
+            </nav>
+
+            <main class="main-content">
+                <!-- SECTION 1: OVERVIEW -->
+                <div id="section-overview" class="admin-section">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3"><div class="metric-card"><div class="metric-label">Total Blood Units</div><div class="metric-value text-primary">142</div></div></div>
+                        <div class="col-md-3"><div class="metric-card"><div class="metric-label">Active Emergency Requests</div><div class="metric-value text-danger">3</div></div></div>
+                        <div class="col-md-3"><div class="metric-card"><div class="metric-label">Registered Donors</div><div class="metric-value text-success">1,280</div></div></div>
+                        <div class="col-md-3"><div class="metric-card"><div class="metric-label">Shortage Warnings</div><div class="metric-value text-warning">1</div></div></div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-8">
+                            <div class="card p-3">
+                                <h6 class="fw-bold mb-3">Blood Supply Availability Across Network</h6>
+                                <canvas id="inventoryChart" height="110"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card p-3">
+                                <h6 class="fw-bold mb-3">Demand Prediction (Next 24 Hours)</h6>
+                                <div class="p-3 bg-light rounded mb-2">
+                                    <div class="d-flex justify-content-between"><span>Predicted O- Demand:</span><strong class="text-danger">12 Units</strong></div>
+                                    <div class="d-flex justify-content-between text-muted small"><span>Current Available:</span><span>5 Units</span></div>
+                                </div>
+                                <div class="alert alert-warning py-2 mb-0 small">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> Potential O- shortage predicted in Tiruchirappalli region.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: HOSPITALS -->
+                <div id="section-hospitals" class="admin-section d-none">
+                    <div class="d-flex justify-content-between mb-3"><h5 class="fw-bold">Registered Hospitals</h5><button class="btn btn-dark btn-sm"><i class="fa-solid fa-plus me-1"></i> Register Hospital</button></div>
+                    <div class="card p-0">
+                        <table class="table table-hover table-custom m-0">
+                            <thead><tr><th>Hospital Name</th><th>Area / City</th><th>Contact Phone</th><th>Status</th></tr></thead>
+                            <tbody>
+                                <tr><td>City General Emergency Hospital</td><td>Tiruchirappalli</td><td>+91 98765 43210</td><td><span class="badge bg-success">Active</span></td></tr>
+                                <tr><td>St. Joseph Medical Center</td><td>Srirangam</td><td>+91 98765 43211</td><td><span class="badge bg-success">Active</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: BLOOD BANKS -->
+                <div id="section-bloodbanks" class="admin-section d-none">
+                    <div class="d-flex justify-content-between mb-3"><h5 class="fw-bold">Registered Blood Banks</h5><button class="btn btn-dark btn-sm"><i class="fa-solid fa-plus me-1"></i> Register Blood Bank</button></div>
+                    <div class="card p-0">
+                        <table class="table table-hover table-custom m-0">
+                            <thead><tr><th>Blood Bank Name</th><th>Area / City</th><th>Total Stock Units</th><th>Status</th></tr></thead>
+                            <tbody>
+                                <tr><td>Central Regional Blood Bank</td><td>Tiruchirappalli</td><td>84 Units</td><td><span class="badge bg-success">Active</span></td></tr>
+                                <tr><td>Red Cross Blood Center</td><td>Srirangam</td><td>58 Units</td><td><span class="badge bg-success">Active</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECTION 4: THRESHOLDS -->
+                <div id="section-thresholds" class="admin-section d-none">
+                    <h5 class="fw-bold mb-3">Configure Critical Stock Thresholds</h5>
+                    <div class="card p-3">
+                        <div class="row g-3">
+                            <div class="col-md-3"><label class="form-label small fw-bold">O- Critical Limit</label><input type="number" class="form-control" value="5"></div>
+                            <div class="col-md-3"><label class="form-label small fw-bold">O+ Critical Limit</label><input type="number" class="form-control" value="15"></div>
+                            <div class="col-md-3"><label class="form-label small fw-bold">A- Critical Limit</label><input type="number" class="form-control" value="5"></div>
+                            <div class="col-md-3"><label class="form-label small fw-bold">B- Critical Limit</label><input type="number" class="form-control" value="5"></div>
+                        </div>
+                        <button class="btn btn-primary btn-sm mt-3" style="width: fit-content;">Save Threshold Settings</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function showAdminSection(sectionName, element) {
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.add('d-none'));
+            document.getElementById('section-' + sectionName).classList.remove('d-none');
+            document.querySelectorAll('#sidebar .nav-link').forEach(link => link.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function triggerDemoNotif() {
+            const notifBadge = document.getElementById('notif-badge');
+            const notifList = document.getElementById('notif-list');
+            const noNotifs = document.getElementById('no-notifs');
+            if (noNotifs) noNotifs.remove();
+
+            let currentCount = parseInt(notifBadge.textContent) || 0;
+            notifBadge.textContent = currentCount + 1;
+            notifBadge.classList.remove('d-none');
+
+            const item = document.createElement('li');
+            item.className = 'p-2 mb-1 rounded border-bottom bg-light small';
+            item.innerHTML = `<div class="fw-bold text-danger d-flex justify-content-between"><span>CRITICAL_STOCK</span><span class="text-muted micro-text">${new Date().toLocaleTimeString()}</span></div><div class="text-dark mt-1">O- stock fell below threshold (4 units remaining)</div>`;
+            notifList.insertBefore(item, notifList.children[2]);
+        }
+
+        function resetNotifBadge() {
+            const notifBadge = document.getElementById('notif-badge');
+            if (notifBadge) { notifBadge.textContent = '0'; notifBadge.classList.add('d-none'); }
+        }
+
+        function clearNotifs() {
+            document.getElementById('notif-list').innerHTML = `<li class="dropdown-header fw-bold d-flex justify-content-between align-items-center"><span>System Alerts</span><span class="badge bg-secondary" style="cursor:pointer" onclick="clearNotifs()">Clear</span></li><li><hr class="dropdown-divider my-1"></li><li class="text-center text-muted small py-3" id="no-notifs">No unread notifications</li>`;
+            resetNotifBadge();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('inventoryChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+                        datasets: [{ label: 'Available Units', data: [25, 12, 30, 8, 15, 4, 40, 8], backgroundColor: '#1e293b' },
+                                   { label: 'Critical Threshold', data: [10, 5, 10, 5, 5, 3, 15, 10], type: 'line', borderColor: '#dc2626', fill: false }]
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank Portal | BloodLink Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --sidebar-width: 250px; --bg-main: #f8fafc; --navy-dark: #0f172a; --navy-primary: #1e293b; --red-accent: #dc2626; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg-main); color: #334155; margin: 0; }
+        #wrapper { display: flex; width: 100%; min-height: 100vh; }
+        #sidebar { width: var(--sidebar-width); background-color: var(--navy-dark); color: #fff; flex-shrink: 0; display: flex; flex-direction: column; }
+        #sidebar .sidebar-brand { padding: 1.25rem 1.5rem; font-size: 1.25rem; font-weight: 700; border-bottom: 1px solid #334155; color: #fff; text-decoration: none; }
+        #sidebar .nav-link { color: #94a3b8; padding: 0.85rem 1.5rem; font-size: 0.95rem; border-left: 3px solid transparent; cursor: pointer; }
+        #sidebar .nav-link:hover, #sidebar .nav-link.active { color: #fff; background-color: var(--navy-primary); border-left-color: var(--red-accent); }
+        #content-wrapper { flex-grow: 1; display: flex; flex-direction: column; }
+        .top-navbar { background-color: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 0.75rem 1.5rem; }
+        .main-content { padding: 1.75rem; flex-grow: 1; }
+        .table-custom th { background-color: #f1f5f9; color: #475569; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+        .badge-available { background-color: #dcfce7; color: #166534; }
+        .badge-reserved { background-color: #fef3c7; color: #92400e; }
+        .badge-issued { background-color: #e0f2fe; color: #075985; }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="sidebar">
+            <a href="index.html" class="sidebar-brand d-flex align-items-center"><i class="fa-solid fa-droplet text-danger me-2"></i><span>BloodLink</span></a>
+            <div class="nav flex-column mt-3">
+                <a class="nav-link active" onclick="showBankSection('stock', this)"><i class="fa-solid fa-boxes-stacked me-2"></i> Stock Management</a>
+                <a class="nav-link" onclick="showBankSection('requests', this)"><i class="fa-solid fa-truck-medical me-2"></i> Emergency Requests</a>
+            </div>
+            <div class="mt-auto p-3 border-top border-secondary text-muted small">Connected: <span class="badge bg-success">Live Preview</span></div>
+        </div>
+
+        <div id="content-wrapper">
+            <nav class="top-navbar d-flex justify-content-between align-items-center">
+                <h5 class="m-0 text-secondary">Blood Bank Portal</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-semibold text-dark">City Blood Bank Staff</span>
+                    <a href="index.html" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                </div>
+            </nav>
+
+            <main class="main-content">
+                <!-- STOCK SECTION -->
+                <div id="bank-section-stock" class="bank-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="m-0 fw-bold">Current Blood Stock (By Unit)</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUnitModal"><i class="fa-solid fa-plus me-1"></i> Add Blood Unit</button>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body p-0">
+                            <table class="table table-hover table-custom m-0">
+                                <thead><tr><th>Unit ID</th><th>Blood Group</th><th>Collection Date</th><th>Expiry Date</th><th>Status</th><th>Action</th></tr></thead>
+                                <tbody id="unit-table-body">
+                                    <tr>
+                                        <td><code>U-1001</code></td>
+                                        <td><span class="fw-bold text-danger">O-</span></td>
+                                        <td>2026-09-01</td>
+                                        <td>2026-10-12</td>
+                                        <td><span class="badge badge-available">Available</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="reserveUnit(this)">Reserve</button>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="issueUnit(this)">Issue</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>U-1002</code></td>
+                                        <td><span class="fw-bold text-primary">A+</span></td>
+                                        <td>2026-09-05</td>
+                                        <td>2026-10-16</td>
+                                        <td><span class="badge badge-reserved">Reserved</span></td>
+                                        <td><button class="btn btn-sm btn-outline-primary" onclick="issueUnit(this)">Issue</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EMERGENCY REQUESTS SECTION -->
+                <div id="bank-section-requests" class="bank-section d-none">
+                    <h5 class="fw-bold mb-3">Incoming Emergency Requests from Hospitals</h5>
+                    <div class="card p-3">
+                        <table class="table align-middle m-0">
+                            <thead><tr><th>Hospital Name</th><th>Blood Group</th><th>Units</th><th>Urgency</th><th>Status</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td>City General Hospital</td>
+                                    <td><span class="fw-bold text-danger">O-</span></td>
+                                    <td>4 Units</td>
+                                    <td><span class="badge bg-danger">CRITICAL</span></td>
+                                    <td><span class="badge bg-warning text-dark">Searching</span></td>
+                                    <td><button class="btn btn-sm btn-success" onclick="fulfillRequest(this)">Reserve 4 Units</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addUnitModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title fw-bold">Record New Blood Unit</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <form onsubmit="handleAddUnit(event)">
+                    <div class="modal-body">
+                        <div class="mb-3"><label class="form-label small fw-semibold">Blood Group</label><select class="form-select" id="new_blood_group"><option value="O-">O-</option><option value="O+">O+</option><option value="A+">A+</option></select></div>
+                        <div class="mb-3"><label class="form-label small fw-semibold">Unit Identifier</label><input type="text" class="form-control" id="unit_id" placeholder="e.g. U-1003" required></div>
+                        <div class="mb-3"><label class="form-label small fw-semibold">Collection Date</label><input type="date" class="form-control" id="collection_date" required></div>
+                    </div>
+                    <div class="modal-footer"><button type="submit" class="btn btn-primary">Save to Stock</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/bootstrap.bundle.min.js"></script>
+    <script>
+        function showBankSection(sectionName, element) {
+            document.querySelectorAll('.bank-section').forEach(sec => sec.classList.add('d-none'));
+            document.getElementById('bank-section-' + sectionName).classList.remove('d-none');
+            document.querySelectorAll('#sidebar .nav-link').forEach(link => link.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function reserveUnit(button) {
+            const row = button.closest('tr');
+            const badge = row.querySelector('.badge');
+            badge.className = 'badge badge-reserved';
+            badge.textContent = 'Reserved';
+            button.remove();
+        }
+
+        function issueUnit(button) {
+            const row = button.closest('tr');
+            const badge = row.querySelector('.badge');
+            badge.className = 'badge badge-issued';
+            badge.textContent = 'Issued';
+            row.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        }
+
+        function fulfillRequest(button) {
+            button.className = 'btn btn-sm btn-secondary disabled';
+            button.textContent = 'Fulfilled & Reserved';
+            const row = button.closest('tr');
+            const statusBadge = row.cells[4].querySelector('.badge');
+            statusBadge.className = 'badge bg-success';
+            statusBadge.textContent = 'Reserved';
+        }
+
+        function handleAddUnit(event) {
+            event.preventDefault();
+            const unitId = document.getElementById('unit_id').value;
+            const bg = document.getElementById('new_blood_group').value;
+            const collectionDate = document.getElementById('collection_date').value;
+
+            const dateObj = new Date(collectionDate);
+            dateObj.setDate(dateObj.getDate() + 35);
+            const expiryDate = dateObj.toISOString().split('T')[0];
+
+            const tableBody = document.getElementById('unit-table-body');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `<td><code>${unitId}</code></td><td><span class="fw-bold text-danger">${bg}</span></td><td>${collectionDate}</td><td>${expiryDate}</td><td><span class="badge badge-available">Available</span></td><td><button class="btn btn-sm btn-outline-secondary" onclick="reserveUnit(this)">Reserve</button> <button class="btn btn-sm btn-outline-primary" onclick="issueUnit(this)">Issue</button></td>`;
+            tableBody.appendChild(newRow);
+
+            bootstrap.Modal.getInstance(document.getElementById('addUnitModal')).hide();
+        }
+    </script>
+</body>
+</html>

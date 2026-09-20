@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Portal | BloodLink Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --sidebar-width: 250px; --bg-main: #f8fafc; --navy-dark: #0f172a; --navy-primary: #1e293b; --red-accent: #dc2626; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg-main); color: #334155; margin: 0; }
+        #wrapper { display: flex; width: 100%; min-height: 100vh; }
+        #sidebar { width: var(--sidebar-width); background-color: var(--navy-dark); color: #fff; flex-shrink: 0; display: flex; flex-direction: column; }
+        #sidebar .sidebar-brand { padding: 1.25rem 1.5rem; font-size: 1.25rem; font-weight: 700; border-bottom: 1px solid #334155; color: #fff; text-decoration: none; }
+        #sidebar .nav-link { color: #94a3b8; padding: 0.85rem 1.5rem; font-size: 0.95rem; border-left: 3px solid transparent; }
+        #sidebar .nav-link.active { color: #fff; background-color: var(--navy-primary); border-left-color: var(--red-accent); }
+        #content-wrapper { flex-grow: 1; display: flex; flex-direction: column; }
+        .top-navbar { background-color: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 0.75rem 1.5rem; }
+        .main-content { padding: 1.75rem; flex-grow: 1; }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="sidebar">
+            <a href="index.html" class="sidebar-brand d-flex align-items-center"><i class="fa-solid fa-droplet text-danger me-2"></i><span>BloodLink</span></a>
+            <div class="nav flex-column mt-3"><a class="nav-link active"><i class="fa-solid fa-hand-holding-heart me-2"></i> Donor Profile</a></div>
+            <div class="mt-auto p-3 border-top border-secondary text-muted small">Connected: <span class="badge bg-success">Live Preview</span></div>
+        </div>
+
+        <div id="content-wrapper">
+            <nav class="top-navbar d-flex justify-content-between align-items-center">
+                <h5 class="m-0 text-secondary">Voluntary Donor Portal</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-semibold text-dark">Rahul Sharma (Donor)</span>
+                    <a href="index.html" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                </div>
+            </nav>
+
+            <main class="main-content">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card p-3">
+                            <h6 class="fw-bold mb-3">Donor Profile</h6>
+                            <div class="mb-2"><strong>Blood Group:</strong> <span class="badge bg-danger">O-</span></div>
+                            <div class="mb-2"><strong>Registered Area:</strong> Tiruchirappalli</div>
+                            <div class="mb-3"><strong>Current Status:</strong> <span id="status-badge" class="badge bg-success">Available</span></div>
+                            <button class="btn btn-outline-secondary btn-sm w-100" onclick="toggleStatus()">Toggle Availability</button>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card p-3">
+                            <h6 class="fw-bold mb-3">Emergency Response Alerts</h6>
+                            <div class="alert alert-danger" id="donor-alert-box">
+                                <h6 class="alert-heading fw-bold mb-1"><i class="fa-solid fa-bullhorn me-1"></i> Emergency O- Match Needed</h6>
+                                <p class="mb-2 small">A local hospital in your registered area (Tiruchirappalli) urgently requires O- voluntary donors.</p>
+                                <button class="btn btn-danger btn-sm" onclick="respondToAlert(this)">I am Available to Donate</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function toggleStatus() {
+            const badge = document.getElementById('status-badge');
+            if (badge.textContent === 'Available') {
+                badge.textContent = 'Unavailable';
+                badge.className = 'badge bg-secondary';
+            } else {
+                badge.textContent = 'Available';
+                badge.className = 'badge bg-success';
+            }
+        }
+
+        function respondToAlert(button) {
+            button.className = 'btn btn-success btn-sm disabled';
+            button.textContent = 'Response Recorded - Thank You!';
+        }
+    </script>
+</body>
+</html>
