@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | BloodLink Network</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0f172a; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .card { border: none; border-radius: 8px; }
+    </style>
+</head>
+<body class="d-flex align-items-center vh-100 py-4">
+    <div class="container" style="max-width: 460px;">
+        <!-- Brand Header -->
+        <div class="text-center text-white mb-4">
+            <h2 class="fw-bold"><i class="fa-solid fa-droplet text-danger me-2"></i>BloodLink</h2>
+            <p class="text-muted small">Real-Time Blood Inventory & Emergency Coordination Network</p>
+        </div>
+
+        <div class="card p-4 shadow-lg bg-white">
+            <h5 class="fw-bold text-dark mb-3">Sign In</h5>
+            
+            <form action="/login" method="POST" id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-secondary">Role / Account</label>
+                    <select class="form-select" id="roleSelect" name="roleSelect" onchange="quickFillCredentials(this.value)">
+                        <option value="admin">System Administrator</option>
+                        <option value="bloodbank">Blood Bank Staff</option>
+                        <option value="hospital">Hospital Emergency Staff</option>
+                        <option value="donor">Registered Voluntary Donor</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-secondary">Email Address</label>
+                    <input type="email" id="emailInput" name="email" class="form-control" value="admin@bloodlink.org" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-secondary">Password</label>
+                    <input type="password" id="passwordInput" name="password" class="form-control" value="admin123" required>
+                </div>
+
+                <button type="submit" class="btn btn-danger w-100 fw-semibold py-2">Sign In to Dashboard</button>
+            </form>
+
+            <hr class="my-3">
+
+            <!-- New Donor Registration Link -->
+            <div class="text-center">
+                <span class="small text-muted">Want to become a voluntary donor?</span>
+                <a href="/register" class="small fw-bold text-danger ms-1 text-decoration-none">Register Here</a>
+            </div>
+        </div>
+
+        <!-- Quick Demo Login Reference Box -->
+        <div class="card mt-3 p-3 bg-dark text-white border border-secondary">
+            <div class="fw-bold small text-uppercase text-danger mb-2"><i class="fa-solid fa-key me-1"></i> Demo Login Credentials</div>
+            <div class="small text-muted">
+                <div><strong>Admin:</strong> <code>admin@bloodlink.org</code> / <code>admin123</code></div>
+                <div><strong>Blood Bank:</strong> <code>staff@citybloodbank.org</code> / <code>bank123</code></div>
+                <div><strong>Hospital:</strong> <code>er@cityhospital.org</code> / <code>hosp123</code></div>
+                <div><strong>Donor:</strong> <code>donor@gmail.com</code> / <code>donor123</code></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function quickFillCredentials(role) {
+            const emailInput = document.getElementById('emailInput');
+            const passwordInput = document.getElementById('passwordInput');
+            
+            if (role === 'admin') {
+                emailInput.value = 'admin@bloodlink.org';
+                passwordInput.value = 'admin123';
+            } else if (role === 'bloodbank') {
+                emailInput.value = 'staff@citybloodbank.org';
+                passwordInput.value = 'bank123';
+            } else if (role === 'hospital') {
+                emailInput.value = 'er@cityhospital.org';
+                passwordInput.value = 'hosp123';
+            } else if (role === 'donor') {
+                emailInput.value = 'donor@gmail.com';
+                passwordInput.value = 'donor123';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+/* Healthcare Professional Theme */
+:root {
+  --sidebar-width: 250px;
+  --bg-main: #f8fafc;
+  --navy-dark: #0f172a;
+  --navy-primary: #1e293b;
+  --teal-accent: #0d9488;
+  --red-accent: #dc2626;
+  --border-color: #e2e8f0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-main);
+  color: #334155;
+  margin: 0;
+  padding: 0;
+}
+
+/* App Layout */
+#wrapper {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Sidebar Styling */
+#sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--navy-dark);
+  color: #fff;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar .sidebar-brand {
+  padding: 1.25rem 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #334155;
+  color: #fff;
+  text-decoration: none;
+}
+
+#sidebar .nav-link {
+  color: #94a3b8;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+  border-left: 3px solid transparent;
+}
+
+#sidebar .nav-link:hover,
+#sidebar .nav-link.active {
+  color: #fff;
+  background-color: var(--navy-primary);
+  border-left-color: var(--red-accent);
+}
+
+/* Main Content Area */
+#content-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 1.5rem;
+}
+
+.main-content {
+  padding: 1.75rem;
+  flex-grow: 1;
+}
+
+/* Metric Cards */
+.metric-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.metric-card .metric-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--navy-dark);
+}
+
+.metric-card .metric-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Tables */
+.table-custom {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+}
+
+.table-custom th {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Status Badges */
+.badge-available {
+  background-color: #dcfce7;
+  color: #166534;
+}
+.badge-reserved {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+.badge-issued {
+  background-color: #e0f2fe;
+  color: #075985;
+}
+.badge-critical {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Notifications Box */
+.notification-feed {
+  max-height: 350px;
+  overflow-y: auto;
+}

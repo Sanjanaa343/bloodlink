@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Hospital Portal | BloodLink{% endblock %}
+{% block page_title %}Emergency Requests & Monitoring{% endblock %}
+
+{% block sidebar_menu %}
+<a href="/hospital" class="nav-link active"><i class="fa-solid fa-truck-medical me-2"></i> Emergency Requests</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-5">
+        <div class="card p-3">
+            <h6 class="fw-bold mb-3 text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> Create Emergency Blood Request</h6>
+            <form id="emergencyReqForm" onsubmit="createEmergencyRequest(event)">
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Blood Group Required</label>
+                    <select class="form-select" id="blood_group">
+                        <option value="O-">O- (Critical / Universal)</option>
+                        <option value="O+">O+</option>
+                        <option value="A-">A-</option>
+                        <option value="A+">A+</option>
+                        <option value="B-">B-</option>
+                        <option value="B+">B+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="AB+">AB+</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Units Required</label>
+                    <input type="number" class="form-control" id="units_required" min="1" value="4" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Urgency Level</label>
+                    <select class="form-select" id="urgency">
+                        <option value="CRITICAL">Critical (Immediate)</option>
+                        <option value="HIGH">High (&lt; 2 Hours)</option>
+                        <option value="MEDIUM">Medium (&lt; 6 Hours)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-danger w-100">Broadcast Request</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card p-3">
+            <h6 class="fw-bold mb-3">Active Emergency Requests</h6>
+            <div id="hospital-requests-list">
+                <div class="border rounded p-3 mb-2 bg-light">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold text-danger">O- (4 Units)</span>
+                        <span class="badge bg-warning text-dark">Searching</span>
+                    </div>
+                    <div class="small text-muted mt-1">Status: Checking blood bank availability...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function createEmergencyRequest(event) {
+    event.preventDefault();
+    const bg = document.getElementById('blood_group').value;
+    const units = document.getElementById('units_required').value;
+    const urgency = document.getElementById('urgency').value;
+
+    const list = document.getElementById('hospital-requests-list');
+    const newReq = document.createElement('div');
+    newReq.className = 'border rounded p-3 mb-2 bg-light';
+    newReq.innerHTML = `
+        <div class="d-flex justify-content-between">
+            <span class="fw-bold text-danger">${bg} (${units} Units) - ${urgency}</span>
+            <span class="badge bg-warning text-dark">Searching</span>
+        </div>
+        <div class="small text-muted mt-1">Status: Broadcast sent to nearby blood banks...</div>
+    `;
+    list.prepend(newReq);
+    alert('Emergency Request for ' + bg + ' broadcast successfully!');
+}
+</script>
+{% endblock %}

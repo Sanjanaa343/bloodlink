@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% block title %}Blood Bank Portal | BloodLink{% endblock %}
+{% block page_title %}Blood Bank Stock & Fulfillment Center{% endblock %}
+
+{% block sidebar_menu %}
+<a href="#stock" class="nav-link active" onclick="showBankSection('stock', this)"><i class="fa-solid fa-boxes-stacked me-2"></i> Stock Management</a>
+<a href="#requests" class="nav-link" onclick="showBankSection('requests', this)"><i class="fa-solid fa-truck-medical me-2"></i> Emergency Requests</a>
+{% endblock %}
+
+{% block content %}
+<!-- SECTION 1: STOCK MANAGEMENT -->
+<div id="bank-section-stock" class="bank-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="m-0 fw-bold">Current Blood Stock (By Unit)</h5>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUnitModal">
+            <i class="fa-solid fa-plus me-1"></i> Add Blood Unit
+        </button>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body p-0">
+            <table class="table table-hover table-custom m-0">
+                <thead>
+                    <tr>
+                        <th>Unit ID</th>
+                        <th>Blood Group</th>
+                        <th>Collection Date</th>
+                        <th>Expiry Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="unit-table-body">
+                    <tr>
+                        <td><code>U-1001</code></td>
+                        <td><span class="fw-bold text-danger">O-</span></td>
+                        <td>2026-09-01</td>
+                        <td>2026-10-12</td>
+                        <td><span class="badge badge-available">Available</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="reserveUnit(this)">Reserve</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="issueUnit(this)">Issue</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>U-1002</code></td>
+                        <td><span class="fw-bold text-primary">A+</span></td>
+                        <td>2026-09-05</td>
+                        <td>2026-10-16</td>
+                        <td><span class="badge badge-reserved">Reserved</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="issueUnit(this)">Issue</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 2: EMERGENCY REQUESTS -->
+<div id="bank-section-requests" class="bank-section d-none">
+    <h5 class="fw-bold mb-3">Incoming Emergency Requests from Hospitals</h5>
+    <div class="card p-3">
+        <div class="table-responsive">
+            <table class="table align-middle m-0">
+                <thead>
+                    <tr>
+                        <th>Hospital Name</th>
+                        <th>Blood Group Required</th>
+                        <th>Units</th>
+                        <th>Urgency</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>City General Hospital</td>
+                        <td><span class="fw-bold text-danger">O-</span></td>
+                        <td>4 Units</td>
+                        <td><span class="badge bg-danger">CRITICAL</span></td>
+                        <td><span class="badge bg-warning text-dark">Searching</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-success" onclick="fulfillRequest(this)">Reserve 4 Units</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Blood Unit Modal -->
+<div class="modal fade" id="addUnitModal" tabindex="-1" aria-labelledby="addUnitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="addUnitModalLabel">Record Incoming Donation / New Blood Unit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addUnitForm" onsubmit="handleAddUnit(event)">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Blood Group</label>
+                        <select class="form-select" id="new_blood_group" required>
+                            <option value="O-">O-</option>
+                            <option value="O+">O+</option>
+                            <option value="A-">A-</option>
+                            <option value="A+">A+</option>
+                            <option value="B-">B-</option>
+                            <option value="B+">B+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="AB+">AB+</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Unit Identifier / Barcode</label>
+                        <input type="text" class="form-control" id="unit_id" placeholder="e.g. U-1003" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Collection Date</label>
+                        <input type="date" class="form-control" id="collection_date" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save to Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function showBankSection(sectionName, element) {
+    document.querySelectorAll('.bank-section').forEach(sec => sec.classList.add('d-none'));
+    document.getElementById('bank-section-' + sectionName).classList.remove('d-none');
+    
+    document.querySelectorAll('#sidebar .nav-link').forEach(link => link.classList.remove('active'));
+    element.classList.add('active');
+}
+
+function reserveUnit(button) {
+    const row = button.closest('tr');
+    const badge = row.querySelector('.badge');
+    badge.className = 'badge badge-reserved';
+    badge.textContent = 'Reserved';
+    button.remove(); // Cannot re-reserve an already reserved unit
+}
+
+function issueUnit(button) {
+    const row = button.closest('tr');
+    const badge = row.querySelector('.badge');
+    badge.className = 'badge badge-issued';
+    badge.textContent = 'Issued';
+    row.querySelectorAll('button').forEach(btn => btn.disabled = true);
+}
+
+function fulfillRequest(button) {
+    button.className = 'btn btn-sm btn-secondary disabled';
+    button.textContent = 'Fulfilled & Reserved';
+    const row = button.closest('tr');
+    const statusBadge = row.cells[4].querySelector('.badge');
+    statusBadge.className = 'badge bg-success';
+    statusBadge.textContent = 'Reserved';
+}
+
+function handleAddUnit(event) {
+    event.preventDefault();
+    const unitId = document.getElementById('unit_id').value;
+    const bg = document.getElementById('new_blood_group').value;
+    const collectionDate = document.getElementById('collection_date').value;
+
+    const dateObj = new Date(collectionDate);
+    dateObj.setDate(dateObj.getDate() + 35);
+    const expiryDate = dateObj.toISOString().split('T')[0];
+
+    const tableBody = document.getElementById('unit-table-body');
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td><code>${unitId}</code></td>
+        <td><span class="fw-bold text-danger">${bg}</span></td>
+        <td>${collectionDate}</td>
+        <td>${expiryDate}</td>
+        <td><span class="badge badge-available">Available</span></td>
+        <td>
+            <button class="btn btn-sm btn-outline-secondary" onclick="reserveUnit(this)">Reserve</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="issueUnit(this)">Issue</button>
+        </td>
+    `;
+    tableBody.appendChild(newRow);
+
+    const modalEl = document.getElementById('addUnitModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    modal.hide();
+    document.getElementById('addUnitForm').reset();
+}
+</script>
+{% endblock %}

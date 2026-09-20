@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BloodLink Network{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div id="wrapper">
+        <!-- Navigation Sidebar -->
+        <div id="sidebar">
+            <a href="/" class="sidebar-brand d-flex align-items-center">
+                <i class="fa-solid fa-droplet text-danger me-2"></i>
+                <span>BloodLink</span>
+            </a>
+            <div class="nav flex-column mt-3">
+                {% block sidebar_menu %}
+                <a href="/admin" class="nav-link"><i class="fa-solid fa-user-gear me-2"></i> Admin Portal</a>
+                <a href="/bloodbank" class="nav-link"><i class="fa-solid fa-boxes-stacked me-2"></i> Blood Bank Staff</a>
+                <a href="/hospital" class="nav-link"><i class="fa-solid fa-truck-medical me-2"></i> Hospital Emergency</a>
+                <a href="/donor" class="nav-link"><i class="fa-solid fa-hand-holding-heart me-2"></i> Donor Portal</a>
+                {% endblock %}
+            </div>
+            <div class="mt-auto p-3 border-top border-secondary text-muted small">
+                Connected: <span id="socket-status" class="badge bg-secondary">Offline</span>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-wrapper">
+            <nav class="top-navbar d-flex justify-content-between align-items-center">
+                <h5 class="m-0 text-secondary">{% block page_title %}Dashboard{% endblock %}</h5>
+                <div class="d-flex align-items-center gap-3">
+                    
+                    <!-- Notification Bell Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-light position-relative border" type="button" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" onclick="resetNotifBadge()">
+                            <i class="fa-regular fa-bell fs-5"></i>
+                            <span id="notif-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end p-2 shadow-lg" aria-labelledby="notifDropdown" id="notif-list" style="width: 320px; max-height: 380px; overflow-y: auto;">
+                            <li class="dropdown-header fw-bold d-flex justify-content-between align-items-center">
+                                <span>System Alerts</span>
+                                <span class="badge bg-secondary cursor-pointer" onclick="clearNotifs()">Clear</span>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li class="text-center text-muted small py-3" id="no-notifs">No unread notifications</li>
+                        </ul>
+                    </div>
+
+                    <!-- Test Trigger Button (For Demo) -->
+                    <button class="btn btn-outline-warning btn-sm" onclick="triggerDemoNotif()" title="Test Bell Notification">
+                        <i class="fa-solid fa-bolt me-1"></i> Test Alert
+                    </button>
+
+                    <span class="fw-semibold text-dark">{% block user_name %}User Staff{% endblock %}</span>
+                    <a href="/logout" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                </div>
+            </nav>
+
+            <main class="main-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle (MUST LOAD BEFORE CUSTOM SCRIPTS) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/bootstrap.bundle.min.js"></script>
+    <!-- Socket.IO & Chart.js CDNs -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Socket Connection Handler -->
+    <script src="{{ url_for('static', filename='js/socket_handler.js') }}"></script>
+
+    <script>
+    // Demo Helper functions for Bell Notifications
+    function triggerDemoNotif() {
+        const samples = [
+            { type: 'CRITICAL_STOCK', message: 'O- stock fell below threshold (4 units remaining)', severity: 'CRITICAL' },
+            { type: 'EMERGENCY_REQUEST', message: 'City Hospital requested 3 units of O-', severity: 'HIGH' },
+            { type: 'DONOR_MATCH', message: '2 registered O- donors identified in Tiruchirappalli', severity: 'INFO' }
+        ];
+        const randomSample = samples[Math.floor(Math.random() * samples.length)];
+
+        // Simulate receiving a Socket event
+        if (typeof addNotificationToBell === 'function') {
+            addNotificationToBell(randomSample);
+        }
+    }
+
+    function resetNotifBadge() {
+        const notifBadge = document.getElementById('notif-badge');
+        if (notifBadge) {
+            notifBadge.textContent = '0';
+            notifBadge.classList.add('d-none');
+        }
+    }
+
+    function clearNotifs() {
+        const notifList = document.getElementById('notif-list');
+        notifList.innerHTML = `
+            <li class="dropdown-header fw-bold d-flex justify-content-between align-items-center">
+                <span>System Alerts</span>
+                <span class="badge bg-secondary cursor-pointer" onclick="clearNotifs()">Clear</span>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li class="text-center text-muted small py-3" id="no-notifs">No unread notifications</li>
+        `;
+        resetNotifBadge();
+    }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
